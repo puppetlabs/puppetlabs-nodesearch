@@ -1,7 +1,7 @@
 require 'puppet/face'
 require 'active_record'
 require 'puppet/rails'
-require 'puppet/rails/resources'
+require 'puppet/rails/resource'
 
 Puppet::Face.define(:hostclass, '0.0.1') do
 
@@ -30,7 +30,7 @@ Puppet::Face.define(:hostclass, '0.0.1') do
       # collect the nodes that contain a single class
       nodes = klasses.collect do |class_name|
         # it may be faster to combine the classes into a single query
-        nodes = Puppet::Rails::Resources.find_by_sql("SELECT hosts.name as host_name FROM resources INNER JOIN hosts ON hosts.id = resources.host_id WHERE resources.title='#{class_name}' and resources.restype='class';")
+        nodes = Puppet::Rails::Resource.find_by_sql("SELECT hosts.name as host_name FROM resources INNER JOIN hosts ON hosts.id = resources.host_id WHERE resources.title='#{class_name}' and resources.restype='class';")
         nodes.map { |n| n.host_name }
       end
       if operator == :intersection
