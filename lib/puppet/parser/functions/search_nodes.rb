@@ -7,6 +7,8 @@ the list of hosts.
 
   keys of the form: facts.somefact are filters based on facts
   a key of the form: classes createa filter based on classes
+
+Second argument is a fact to return, if ommited return an array of hashes of all facts of the nodes
 '
 
   facts_filter = args[0] || {}
@@ -21,8 +23,14 @@ the list of hosts.
   facts_search_nodes = Puppet::Face[:facts, :current].search('fake_key', {:extra => facts_filter})
   class_search_nodes = Puppet::Face[:hostclass, :current].search({:classes => class_filter})
   if facts_filter.empty? or class_filter.empty?
-    facts_search_nodes | class_search_nodes
+    nodes = facts_search_nodes | class_search_nodes
   else
-    facts_search_nodes & class_search_nodes
+    nodes = facts_search_nodes & class_search_nodes
+  end
+  nodes.map { |node| Puppet::Face[:facts, :current].find(node).values }
+  if args[1]
+    nodes.map { |node| node[args[1]] }
+  else
+    nodes
   end
 end
