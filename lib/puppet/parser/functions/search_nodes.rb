@@ -20,6 +20,7 @@ Second argument is a fact to return, if ommited return an array of hashes of all
   end
   #expiration_time = args[2] || 60
   # TODO - support some expiration time
+  debug("Searching for nodes")
   facts_search_nodes = Puppet::Face[:facts, :current].search('fake_key', {:extra => facts_filter})
   class_search_nodes = Puppet::Face[:hostclass, :current].search({:classes => class_filter})
   if facts_filter.empty? or class_filter.empty?
@@ -27,8 +28,10 @@ Second argument is a fact to return, if ommited return an array of hashes of all
   else
     nodes = facts_search_nodes & class_search_nodes
   end
-  nodes.map { |node| Puppet::Face[:facts, :current].find(node).values }
+  debug("Found %d nodes, fetching facts" % nodes.count)
+  nodes = nodes.map { |node| Puppet::Face[:facts, :current].find(node).values }
   if args[1]
+    debug("Selecting fact #{args[1]}")
     nodes.map { |node| node[args[1]] }
   else
     nodes
